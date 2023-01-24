@@ -13,10 +13,10 @@
         }
     </style>
 </head>
-<body>
+<body align="center">
     <p>​ </p>
-    <h1 align="center"> Dancing Line </h1>
-    <p align="center">Press Space to turn the line</p>
+    <h1> Dancing Line </h1>
+    <p>Press Space to turn the line</p>
     <p>​ </p>
     <canvas id="gameCanvas" width="640" height="360"></canvas>
 
@@ -37,6 +37,7 @@
     var gameObjects = [];
 
     /// --- Properties and Objects ---
+    canvas.addEventListener("mousedown", mouseDownHandler, false);
     document.addEventListener("keydown", keyDownHandler, false);
     document.addEventListener("keyup", keyUpHandler, false);
 
@@ -103,22 +104,28 @@
 
     function keyDownHandler(e) 
     {
-        console.log("Key pressed: " + e.key);
         if (e.key === " ")
         {
-            console.log("Key correct!: " + e.key);
-            if(!player.isStarted)
-            {
-                audio.play();
-                player.createTail();
-                console.log("Player started");
-                player.isStarted = true;
-            }
-            else
-            {
-                console.log("Player turned");
-                player.turnLine();
-            }
+            addInput()
+        }
+    }
+
+    function mouseDownHandler()
+    {
+        addInput();
+    }
+
+    function addInput()
+    {
+        if(!player.isStarted)
+        {
+            audio.play();
+            player.createTail();
+            player.isStarted = true;
+        }
+        else
+        {
+            player.turnLine();
         }
     }
 
