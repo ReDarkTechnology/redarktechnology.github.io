@@ -1,0 +1,175 @@
+<head>
+    <meta charset="utf-8" />
+    <title>Dancing Line</title>
+    <style>
+        * {
+        padding: 0;
+        margin: 0;
+        }
+        canvas {
+        background: #000000;
+        display: block;
+        margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <p>​ </p>
+    <h1 align="center"> Dancing Line </h1>
+    <p align="center">Press Space to turn the line</p>
+    <p>​ </p>
+    <canvas id="gameCanvas" width="640" height="360"></canvas>
+
+    <!--<div align="center">
+        <h3> Properties </h3>
+        <p>Audio File</p>
+        <label for="myfile">Select a file:</label>
+        <input type="file" id="myfile" name="myfile" onchange="filechanged()">
+    </div>-->
+
+    <script>
+    /// --- Game ---
+    var canvas = document.getElementById("gameCanvas");
+    var ctx = canvas.getContext("2d");
+
+    /// --- Variables ---
+    var audio = new Audio("avantgarde.ogg");
+    var gameObjects = [];
+
+    /// --- Properties and Objects ---
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    var camera = new GameObject(0, 0, 0, 0);
+    camera.draw = function(cam) {};
+
+    var player = new GameObject(0, 0, 20, -20);
+    player.isStarted = false;
+    player.turns = [new Point(0, -3), new Point(3, 0)];
+    player.turnIndex = 0;
+    player.turnDirection = new Point(0, -3);
+    player.tails = [];
+    player.tail = null;
+    player.update = function() {
+        if(player.isStarted)
+        {
+            player.x += player.turnDirection.x;
+            player.y += player.turnDirection.y;
+            if(player.tail != null)
+            {
+                player.tail.width += player.turnDirection.x;
+                player.tail.height += player.turnDirection.y;
+            }
+        }
+    };
+    player.turnLine = function() {
+        if(player.turnIndex === 1)
+        {
+            player.turnDirection = player.turns[0];
+            player.turnIndex = 0;
+        }
+        else
+        {
+            player.turnDirection = player.turns[1];
+            player.turnIndex = 1;
+        }
+        player.createTail();
+    };
+    player.createTail = function()
+    {
+        player.tail = new GameObject(player.x, player.y, 20, -20);
+        player.tail.color = player.color;
+        player.tails.push(player.tail);
+    };
+
+    camera.update = function()
+    {
+        camera.x = camera.x + ((-camera.x + player.x) * 0.05);
+        camera.y = camera.y + ((-camera.y + player.y) * 0.05);
+    };
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for(let i = 0; i < gameObjects.length; i++)
+        {
+            gameObjects[i].update();
+        }
+
+        for(let i = 0; i < gameObjects.length; i++)
+        {
+            gameObjects[i].draw(camera);
+        }
+    }
+
+    function keyDownHandler(e) 
+    {
+        console.log("Key pressed: " + e.key);
+        if (e.key === " ")
+        {
+            console.log("Key correct!: " + e.key);
+            if(!player.isStarted)
+            {
+                audio.play();
+                player.createTail();
+                console.log("Player started");
+                player.isStarted = true;
+            }
+            else
+            {
+                console.log("Player turned");
+                player.turnLine();
+            }
+        }
+    }
+
+    function keyUpHandler(e) 
+    {
+        // I don't know what to do yet here
+    }
+
+    function inputElement() {
+    }
+
+    function filechanged()
+    {
+        audio = new Audio(document.getElementById("myfile"));
+        console.log("File catched!");
+    }
+
+    /// --- Object Classes ---
+    function GameObject(x, y, width, height)
+    {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = "#FFFFFF";
+
+        this.draw = function (cam) {
+            ctx.fillStyle = this.color;
+            var dx = this.x - cam.x - (width / 2) + (canvas.width / 2);
+            var dy = this.y - cam.y - (height / 2) + (canvas.height / 2);
+            ctx.fillRect(dx, dy, this.width, this.height);
+        };
+
+        this.update = function () {};
+
+        gameObjects.push(this);
+    }
+
+    function Point()
+    {
+        this.x = 0;
+        this.y = 0;
+    }
+
+    function Point(x, y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    // Loop the game
+    setInterval(update, 12);
+    </script>
+</body>
